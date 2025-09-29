@@ -20,26 +20,27 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 input_example = X_train[0:5]
 
-n_estimators_range = np.linspace(10, 1000, 5, dtype=int)
-max_depth_range = np.linspace(1, 50, 5, dtype=int)
-
+# Mendefinisikan Metode Random Search
+n_estimators_range = np.linspace(10, 1000, 5, dtype=int)  # 5 evenly spaced values
+max_depth_range = np.linspace(1, 50, 5, dtype=int)  # 5 evenly spaced values
+ 
 best_accuracy = 0
 best_params = {}
-
+ 
 for n_estimators in n_estimators_range:
     for max_depth in max_depth_range:
         with mlflow.start_run(run_name=f"elastic_search_{n_estimators}_{max_depth}"):
             mlflow.autolog()
-
-            # train model
+ 
+            # Train model
             model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
             model.fit(X_train, y_train)
-
+ 
             # Evaluate model
             accuracy = model.score(X_test, y_test)
             mlflow.log_metric("accuracy", accuracy)
-
-            # save best model
+ 
+            # Save the best model
             if accuracy > best_accuracy:
                 best_accuracy = accuracy
                 best_params = {"n_estimators": n_estimators, "max_depth": max_depth}
@@ -47,4 +48,4 @@ for n_estimators in n_estimators_range:
                     sk_model=model,
                     artifact_path="model",
                     input_example=input_example
-                )
+                    )
